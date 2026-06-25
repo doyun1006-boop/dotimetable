@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DO SPORTS 시간표 관리자</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="admin-page">
+    <div class="brand-watermark admin-watermark" aria-hidden="true"></div>
+
+    <header class="topbar brand-topbar">
+      <div class="brand-block">
+        <div class="brand-badge admin-badge">
+          <img src="/assets/do-sports-logo-mark.png" alt="DO SPORTS 로고" />
+        </div>
+        <div>
+          <p class="eyebrow">관리자 전용</p>
+          <h1>DO SPORTS 시간표 수정</h1>
+          <p class="brand-caption">시간표와 메인 문구를 수정하면 학부모 화면에 최대 2초 안에 반영됩니다.</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-link" href="https://classroute-site.netlify.app/" target="_blank" rel="noreferrer">개설 희망 / 반 모으기</a>
+        <a class="ghost-link" href="https://dosportslink.netlify.app/" target="_blank" rel="noreferrer">상담 및 신청서</a>
+        <a class="ghost-link" href="/" target="_blank" rel="noreferrer">학부모 화면 보기</a>
+      </div>
+    </header>
+
+    <main class="admin-layout">
+      <section class="editor-panel">
+        <details class="settings-group" open>
+          <summary>기본 문구 / 공지</summary>
+          <label>
+            학원명
+            <input id="academyNameInput" type="text" placeholder="예: DO SPORTS ACADEMY" />
+          </label>
+          <label>
+            메인 제목
+            <input id="heroTitleInput" type="text" placeholder="예: 농구 · 축구 · 키즈 수업을 한눈에 보는 시간표" />
+          </label>
+          <label>
+            메인 설명
+            <textarea id="heroDescriptionInput" rows="3" placeholder="학부모 화면 상단에 보이는 설명 문구입니다."></textarea>
+          </label>
+          <label>
+            공지사항
+            <textarea id="noticeInput" rows="3" placeholder="휴강, 보강, 준비물, 장소 변경 등을 적어주세요."></textarea>
+          </label>
+        </details>
+
+        <details class="settings-group">
+          <summary>상단 버튼 / 링크</summary>
+          <label>
+            개설 희망 버튼명
+            <input id="openingLinkLabelInput" type="text" placeholder="개설 희망" />
+          </label>
+          <label>
+            개설 희망 링크
+            <input id="openingLinkUrlInput" type="url" placeholder="https://classroute-site.netlify.app/" />
+          </label>
+          <label>
+            반 모으기 버튼명
+            <input id="gatheringLinkLabelInput" type="text" placeholder="반 모으기" />
+          </label>
+          <label>
+            반 모으기 링크
+            <input id="gatheringLinkUrlInput" type="url" placeholder="https://classroute-site.netlify.app/" />
+          </label>
+          <label>
+            상담 버튼명
+            <input id="counselLinkLabelInput" type="text" placeholder="상담 및 신청서 작성" />
+          </label>
+          <label>
+            상담 및 신청서 링크
+            <input id="counselLinkUrlInput" type="url" placeholder="https://dosportslink.netlify.app/" />
+          </label>
+        </details>
+
+        <div class="toolbar">
+          <button id="addClassBtn" type="button">수업 추가</button>
+          <button id="saveBtn" type="button" class="primary">저장하기</button>
+        </div>
+        <p class="helper">수업명, 학년, 정원, 현재원, 장소, 요일, 시간대를 모두 직접 수정할 수 있습니다. 저장 후 학부모 화면에는 최대 2초 안에 반영됩니다.</p>
+        <p id="adminMessage" class="admin-message" role="status"></p>
+      </section>
+
+      <section class="classes-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>수업 목록</h2>
+            <p class="panel-subtitle">농구 · 축구 · 키즈 탭별로 시간표가 분리됩니다.</p>
+          </div>
+          <span id="classCount">0개</span>
+        </div>
+        <nav class="category-tabs admin-tabs" id="adminCategoryTabs" aria-label="관리자 종목 선택"></nav>
+        <div id="classEditorList" class="class-editor-list"></div>
+      </section>
+    </main>
+
+    <dialog id="passwordDialog">
+      <form method="dialog" class="password-box">
+        <h2>관리자 비밀번호</h2>
+        <p>Netlify 환경변수 <code>ADMIN_PASSWORD</code>와 같은 비밀번호를 입력하세요.</p>
+        <input id="passwordInput" type="password" autocomplete="current-password" placeholder="비밀번호" />
+        <button id="unlockBtn" type="submit" class="primary">입장</button>
+      </form>
+    </dialog>
+
+    <script src="/admin.js"></script>
+  </body>
+</html>
