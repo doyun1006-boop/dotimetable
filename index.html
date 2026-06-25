@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DO SPORTS 실시간 시간표</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="viewer-page">
+    <div class="brand-watermark" aria-hidden="true"></div>
+
+    <header class="topbar brand-topbar">
+      <div class="brand-block">
+        <div class="brand-badge">
+          <img src="/assets/do-sports-logo-mark.png" alt="DO SPORTS 로고" />
+        </div>
+        <div>
+          <p class="eyebrow">실시간 수업 시간표</p>
+          <h1 id="academyName">DO SPORTS ACADEMY</h1>
+          <p class="brand-caption">학부모님이 바로 확인할 수 있는 실시간 반별 시간표입니다.</p>
+        </div>
+      </div>
+      <div class="status status-card">
+        <span id="liveDot" class="dot"></span>
+        <span id="lastUpdated">불러오는 중</span>
+      </div>
+    </header>
+
+    <main class="shell viewer-shell">
+      <section class="hero-panel">
+        <div class="hero-copy">
+          <p class="hero-kicker" id="heroKicker">DO SPORTS</p>
+          <h2 id="heroTitle">농구 · 축구 · 키즈 수업을 한눈에 보는 시간표</h2>
+          <p id="heroDescription">
+            수업 시간, 학년, 정원, 장소를 확인하시고 변경 사항은 최대 2초 안에 자동 반영됩니다.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <a id="openingLink" class="cta-button secondary-link" href="https://classroute-site.netlify.app/" target="_blank" rel="noreferrer">개설 희망</a>
+          <a id="gatheringLink" class="cta-button secondary-link" href="https://classroute-site.netlify.app/" target="_blank" rel="noreferrer">반 모으기</a>
+          <a id="counselLink" class="cta-button primary-link wide-link" href="https://dosportslink.netlify.app/" target="_blank" rel="noreferrer">상담 및 신청서 작성</a>
+        </div>
+      </section>
+
+      <section class="notice" id="notice" hidden></section>
+      <section class="connection-warning" id="connectionWarning" hidden></section>
+      <nav class="category-tabs" id="categoryTabs" aria-label="종목 선택"></nav>
+      <section class="schedule-board" id="scheduleBoard" aria-live="polite"></section>
+      <section class="empty" id="emptyState" hidden>
+        등록된 수업이 없습니다. 관리자 화면에서 시간표를 추가해 주세요.
+      </section>
+    </main>
+
+    <script src="/viewer.js"></script>
+  </body>
+</html>
