@@ -19,90 +19,13 @@ const defaults = {
 const seedSchedule = {
   ...defaults,
   lessons: [
-    {
-      id: "sample-basketball-1",
-      category: "basketball",
-      day: "월",
-      startTime: "15:00",
-      endTime: "16:00",
-      name: "농구 기초반",
-      grade: "초1-3",
-      capacity: 10,
-      currentStudents: 7,
-      place: "1코트"
-    },
-    {
-      id: "sample-basketball-2",
-      category: "basketball",
-      day: "수",
-      startTime: "17:00",
-      endTime: "18:20",
-      name: "농구 스킬반",
-      grade: "초4-6",
-      capacity: 12,
-      currentStudents: 10,
-      place: "메인코트"
-    },
-    {
-      id: "sample-basketball-3",
-      category: "basketball",
-      day: "금",
-      startTime: "19:00",
-      endTime: "20:30",
-      name: "중등 농구반",
-      grade: "중1-3",
-      capacity: 12,
-      currentStudents: 8,
-      place: "메인코트"
-    },
-    {
-      id: "sample-soccer-1",
-      category: "soccer",
-      day: "화",
-      startTime: "16:00",
-      endTime: "17:00",
-      name: "축구 기초반",
-      grade: "초1-2",
-      capacity: 12,
-      currentStudents: 9,
-      place: "풋살장"
-    },
-    {
-      id: "sample-soccer-2",
-      category: "soccer",
-      day: "목",
-      startTime: "18:00",
-      endTime: "19:20",
-      name: "축구 게임반",
-      grade: "초3-5",
-      capacity: 14,
-      currentStudents: 14,
-      place: "풋살장"
-    },
-    {
-      id: "sample-kids-1",
-      category: "kids",
-      day: "월",
-      startTime: "16:20",
-      endTime: "17:10",
-      name: "키즈 체육",
-      grade: "6-7세",
-      capacity: 8,
-      currentStudents: 5,
-      place: "키즈룸"
-    },
-    {
-      id: "sample-kids-2",
-      category: "kids",
-      day: "토",
-      startTime: "11:00",
-      endTime: "11:50",
-      name: "유아 밸런스",
-      grade: "5-7세",
-      capacity: 8,
-      currentStudents: 6,
-      place: "키즈룸"
-    }
+    { id: "sample-basketball-1", category: "basketball", day: "월", startTime: "15:00", endTime: "16:00", name: "농구 기초반", grade: "초1-3", capacity: 10, currentStudents: 7, place: "1코트" },
+    { id: "sample-basketball-2", category: "basketball", day: "수", startTime: "17:00", endTime: "18:20", name: "농구 스킬반", grade: "초4-6", capacity: 12, currentStudents: 10, place: "메인코트" },
+    { id: "sample-basketball-3", category: "basketball", day: "금", startTime: "19:00", endTime: "20:30", name: "중등 농구반", grade: "중1-3", capacity: 12, currentStudents: 8, place: "메인코트" },
+    { id: "sample-soccer-1", category: "soccer", day: "화", startTime: "16:00", endTime: "17:00", name: "축구 기초반", grade: "초1-2", capacity: 12, currentStudents: 9, place: "풋살장" },
+    { id: "sample-soccer-2", category: "soccer", day: "목", startTime: "18:00", endTime: "19:20", name: "축구 게임반", grade: "초3-5", capacity: 14, currentStudents: 14, place: "풋살장" },
+    { id: "sample-kids-1", category: "kids", day: "월", startTime: "16:20", endTime: "17:10", name: "키즈 체육", grade: "6-7세", capacity: 8, currentStudents: 5, place: "키즈룸" },
+    { id: "sample-kids-2", category: "kids", day: "토", startTime: "11:00", endTime: "11:50", name: "유아 밸런스", grade: "5-7세", capacity: 8, currentStudents: 6, place: "키즈룸" }
   ]
 };
 
@@ -110,7 +33,7 @@ function json(statusCode, body) {
   return {
     statusCode,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store"
     },
     body: JSON.stringify(body)
@@ -130,7 +53,12 @@ function safeUrl(value, fallback) {
   return url.startsWith("https://") || url.startsWith("http://") ? url : fallback;
 }
 
-function sanitizeSchedule(input) {
+function safeNumber(value) {
+  const number = Number(value || 0);
+  return Number.isFinite(number) && number >= 0 ? number : 0;
+}
+
+function sanitizeSchedule(input = {}) {
   return {
     academyName: String(input.academyName || defaults.academyName).slice(0, 80),
     heroTitle: String(input.heroTitle || defaults.heroTitle).slice(0, 120),
@@ -144,45 +72,60 @@ function sanitizeSchedule(input) {
     counselLinkUrl: safeUrl(input.counselLinkUrl, defaults.counselLinkUrl),
     lessons: Array.isArray(input.lessons)
       ? input.lessons.map((lesson) => ({
-          id: String(lesson.id || crypto.randomUUID()),
+          id: String(lesson.id || crypto.randomUUID()).slice(0, 80),
           category: safeCategory(lesson.category),
           day: safeDay(lesson.day),
           startTime: String(lesson.startTime || "").slice(0, 5),
           endTime: String(lesson.endTime || "").slice(0, 5),
           name: String(lesson.name || "").slice(0, 80),
           grade: String(lesson.grade || "").slice(0, 40),
-          capacity: Number(lesson.capacity || 0),
-          currentStudents: Number(lesson.currentStudents || 0),
+          capacity: safeNumber(lesson.capacity),
+          currentStudents: safeNumber(lesson.currentStudents),
           place: String(lesson.place || lesson.room || "").slice(0, 50)
         }))
       : []
   };
 }
 
-exports.handler = async (event) => {
-  const store = getStore("academy-schedule");
+function getScheduleStore() {
+  return getStore("academy-schedule");
+}
 
+exports.handler = async (event) => {
   if (event.httpMethod === "GET") {
-    const saved = await store.get("current", { type: "json" });
-    return json(200, saved ? sanitizeSchedule(saved) : seedSchedule);
+    try {
+      const store = getScheduleStore();
+      const saved = await store.get("current", { type: "json" });
+      return json(200, saved ? sanitizeSchedule(saved) : seedSchedule);
+    } catch (error) {
+      return json(200, {
+        ...seedSchedule,
+        storageWarning: "Netlify Blobs 저장소 연결 전이라 기본 시간표를 표시합니다."
+      });
+    }
   }
 
   if (event.httpMethod === "POST") {
-    const expectedPassword = process.env.ADMIN_PASSWORD;
-    const providedPassword = event.headers["x-admin-password"];
+    try {
+      const expectedPassword = process.env.ADMIN_PASSWORD;
+      const providedPassword = event.headers["x-admin-password"];
 
-    if (!expectedPassword) {
-      return json(500, { message: "Netlify 환경변수 ADMIN_PASSWORD가 필요합니다." });
+      if (!expectedPassword) {
+        return json(500, { message: "Netlify 환경변수 ADMIN_PASSWORD가 필요합니다." });
+      }
+
+      if (providedPassword !== expectedPassword) {
+        return json(401, { message: "관리자 비밀번호가 올바르지 않습니다." });
+      }
+
+      const parsed = JSON.parse(event.body || "{}");
+      const schedule = sanitizeSchedule(parsed);
+      const store = getScheduleStore();
+      await store.setJSON("current", schedule);
+      return json(200, schedule);
+    } catch (error) {
+      return json(500, { message: "시간표 저장 중 오류가 발생했습니다. Netlify Functions와 Blobs 설정을 확인해 주세요." });
     }
-
-    if (providedPassword !== expectedPassword) {
-      return json(401, { message: "관리자 비밀번호가 올바르지 않습니다." });
-    }
-
-    const parsed = JSON.parse(event.body || "{}");
-    const schedule = sanitizeSchedule(parsed);
-    await store.setJSON("current", schedule);
-    return json(200, schedule);
   }
 
   return json(405, { message: "허용되지 않는 요청입니다." });

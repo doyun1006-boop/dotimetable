@@ -38,6 +38,16 @@ const defaults = {
   counselLinkUrl: "https://dosportslink.netlify.app/"
 };
 
+const fallbackLessons = [
+  { id: "sample-basketball-1", category: "basketball", day: "월", startTime: "15:00", endTime: "16:00", name: "농구 기초반", grade: "초1-3", capacity: 10, currentStudents: 7, place: "1코트" },
+  { id: "sample-basketball-2", category: "basketball", day: "수", startTime: "17:00", endTime: "18:20", name: "농구 스킬반", grade: "초4-6", capacity: 12, currentStudents: 10, place: "메인코트" },
+  { id: "sample-basketball-3", category: "basketball", day: "금", startTime: "19:00", endTime: "20:30", name: "중등 농구반", grade: "중1-3", capacity: 12, currentStudents: 8, place: "메인코트" },
+  { id: "sample-soccer-1", category: "soccer", day: "화", startTime: "16:00", endTime: "17:00", name: "축구 기초반", grade: "초1-2", capacity: 12, currentStudents: 9, place: "풋살장" },
+  { id: "sample-soccer-2", category: "soccer", day: "목", startTime: "18:00", endTime: "19:20", name: "축구 게임반", grade: "초3-5", capacity: 14, currentStudents: 14, place: "풋살장" },
+  { id: "sample-kids-1", category: "kids", day: "월", startTime: "16:20", endTime: "17:10", name: "키즈 체육", grade: "6-7세", capacity: 8, currentStudents: 5, place: "키즈룸" },
+  { id: "sample-kids-2", category: "kids", day: "토", startTime: "11:00", endTime: "11:50", name: "유아 밸런스", grade: "5-7세", capacity: 8, currentStudents: 6, place: "키즈룸" }
+];
+
 let adminPassword = sessionStorage.getItem("academyAdminPassword") || "";
 let activeCategory = sessionStorage.getItem("academyAdminCategory") || "basketball";
 let lessons = [];
@@ -192,21 +202,37 @@ function renderEditor() {
 }
 
 async function loadSchedule() {
-  const response = await fetch("/.netlify/functions/schedule", { cache: "no-store" });
-  if (!response.ok) throw new Error("시간표를 불러오지 못했습니다.");
-  const data = await response.json();
-  academyNameInput.value = data.academyName || defaults.academyName;
-  heroTitleInput.value = data.heroTitle || defaults.heroTitle;
-  heroDescriptionInput.value = data.heroDescription || defaults.heroDescription;
-  noticeInput.value = data.notice || "";
-  openingLinkLabelInput.value = data.openingLinkLabel || defaults.openingLinkLabel;
-  openingLinkUrlInput.value = data.openingLinkUrl || defaults.openingLinkUrl;
-  gatheringLinkLabelInput.value = data.gatheringLinkLabel || defaults.gatheringLinkLabel;
-  gatheringLinkUrlInput.value = data.gatheringLinkUrl || defaults.gatheringLinkUrl;
-  counselLinkLabelInput.value = data.counselLinkLabel || defaults.counselLinkLabel;
-  counselLinkUrlInput.value = data.counselLinkUrl || defaults.counselLinkUrl;
-  lessons = (data.lessons || []).map(normalizeLesson);
-  renderEditor();
+  try {
+    const response = await fetch("/.netlify/functions/schedule", { cache: "no-store" });
+    if (!response.ok) throw new Error(`시간표 API 오류 ${response.status}`);
+    const data = await response.json();
+    academyNameInput.value = data.academyName || defaults.academyName;
+    heroTitleInput.value = data.heroTitle || defaults.heroTitle;
+    heroDescriptionInput.value = data.heroDescription || defaults.heroDescription;
+    noticeInput.value = data.notice || "";
+    openingLinkLabelInput.value = data.openingLinkLabel || defaults.openingLinkLabel;
+    openingLinkUrlInput.value = data.openingLinkUrl || defaults.openingLinkUrl;
+    gatheringLinkLabelInput.value = data.gatheringLinkLabel || defaults.gatheringLinkLabel;
+    gatheringLinkUrlInput.value = data.gatheringLinkUrl || defaults.gatheringLinkUrl;
+    counselLinkLabelInput.value = data.counselLinkLabel || defaults.counselLinkLabel;
+    counselLinkUrlInput.value = data.counselLinkUrl || defaults.counselLinkUrl;
+    lessons = (data.lessons || []).map(normalizeLesson);
+    renderEditor();
+  } catch (error) {
+    academyNameInput.value = defaults.academyName;
+    heroTitleInput.value = defaults.heroTitle;
+    heroDescriptionInput.value = defaults.heroDescription;
+    noticeInput.value = defaults.notice;
+    openingLinkLabelInput.value = defaults.openingLinkLabel;
+    openingLinkUrlInput.value = defaults.openingLinkUrl;
+    gatheringLinkLabelInput.value = defaults.gatheringLinkLabel;
+    gatheringLinkUrlInput.value = defaults.gatheringLinkUrl;
+    counselLinkLabelInput.value = defaults.counselLinkLabel;
+    counselLinkUrlInput.value = defaults.counselLinkUrl;
+    lessons = fallbackLessons.map(normalizeLesson);
+    renderEditor();
+    throw new Error("시간표 저장 서버와 연결되지 않았습니다. GitHub 파일 구조와 Netlify Functions 배포 상태를 확인해 주세요.");
+  }
 }
 
 async function saveSchedule() {
