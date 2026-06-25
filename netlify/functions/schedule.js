@@ -1,4 +1,5 @@
 const { getStore } = require("@netlify/blobs");
+const { randomUUID } = require("crypto");
 
 const allowedCategories = ["basketball", "soccer", "kids"];
 const allowedDays = ["월", "화", "수", "목", "금", "토", "일"];
@@ -72,7 +73,7 @@ function sanitizeSchedule(input = {}) {
     counselLinkUrl: safeUrl(input.counselLinkUrl, defaults.counselLinkUrl),
     lessons: Array.isArray(input.lessons)
       ? input.lessons.map((lesson) => ({
-          id: String(lesson.id || crypto.randomUUID()).slice(0, 80),
+          id: String(lesson.id || randomUUID()).slice(0, 80),
           category: safeCategory(lesson.category),
           day: safeDay(lesson.day),
           startTime: String(lesson.startTime || "").slice(0, 5),
@@ -88,7 +89,17 @@ function sanitizeSchedule(input = {}) {
 }
 
 function getScheduleStore() {
-  return getStore("academy-schedule");
+  // Object-form getStore is the most stable form for Netlify's current Blobs runtime.
+  // The store is created automatically the first time setJSON succeeds.
+  return getStore({ name: "academy-schedule" });
+}
+
+function errorBody(prefix, error) {
+  const message = error && error.message ? error.message : String(error || "알 수 없는 오류");
+  console.error(prefix, error);
+  return {
+    message: `${prefix}: ${message}`
+  };
 }
 
 exports.handler = async (event) => {
@@ -98,9 +109,10 @@ exports.handler = async (event) => {
       const saved = await store.get("current", { type: "json" });
       return json(200, saved ? sanitizeSchedule(saved) : seedSchedule);
     } catch (error) {
+      console.error("GET schedule storage warning", error);
       return json(200, {
         ...seedSchedule,
-        storageWarning: "Netlify Blobs 저장소 연결 전이라 기본 시간표를 표시합니다."
+        storageWarning: `Netlify Blobs 저장소 연결 전이라 기본 시간표를 표시합니다. 상세: ${error.message || error}`
       });
     }
   }
@@ -124,7 +136,7 @@ exports.handler = async (event) => {
       await store.setJSON("current", schedule);
       return json(200, schedule);
     } catch (error) {
-      return json(500, { message: "시간표 저장 중 오류가 발생했습니다. Netlify Functions와 Blobs 설정을 확인해 주세요." });
+      return json(500, errorBody("시간표 저장 중 오류가 발생했습니다", error));
     }
   }
 

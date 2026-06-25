@@ -1,3 +1,21 @@
+# DO SPORTS 실시간 시간표 v6
+
+이 버전은 Netlify Blobs 저장 오류를 더 안정적으로 처리하도록 수정했습니다.
+
+## 변경 사항
+
+- Netlify Blobs `getStore` 호출 방식을 안정적인 object-form으로 변경
+- Node 런타임을 20으로 지정
+- 저장 실패 시 관리자 화면에 실제 오류 메시지를 표시
+- 기존 관리자 비밀번호 `ADMIN_PASSWORD` 환경변수는 그대로 사용
+
+## 배포 후 확인
+
+1. GitHub 저장소 루트에 `public`, `netlify`, `package.json`, `netlify.toml`이 바로 보여야 합니다.
+2. Netlify → Deploys → Trigger deploy → Deploy site 로 재배포합니다.
+3. `/admin`을 시크릿 창에서 열고 비밀번호를 다시 입력합니다.
+4. 저장 성공 후 Netlify → Blobs 화면에 `academy-schedule` 저장소가 생성됩니다.
+
 # DO SPORTS 실시간 시간표 사이트
 
 학부모가 실시간으로 확인할 수 있는 DO SPORTS 시간표 사이트입니다.  
